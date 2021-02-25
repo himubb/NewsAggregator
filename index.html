@@ -20,6 +20,9 @@
         position: fixed;
         bottom: 0px;
       }
+      #heading {
+        text-align: center;
+      }
       .wrap {
         white-space: normal !important;
       }
@@ -30,9 +33,25 @@
     </style>
   </head>
   <body>
+    <div data-role="page" id="india">
+      <div data-role="header" id="header">News</div>
+      <div data-role="content" id="heading"><h1>Top Headlines</h1></div>
+      <a href="#master"
+        ><button onclick="getUSStories()">USA top Stories</button></a
+      >
+
+      <div id="stories">
+        <ul id="storyListIn" data-role="listview"></ul>
+      </div>
+      <div data-role="footer" id="footer">By Himu using NewsApi</div>
+    </div>
     <div data-role="page" id="master">
       <div data-role="header" id="header">News</div>
-      <div data-role="content"><h1>Top Headlines</h1></div>
+      <div data-role="content" id="heading"><h1>Top Headlines</h1></div>
+      <a href="#india"
+        ><button onclick="getIndiaStories()">India's top Stories</button></a
+      >
+
       <div id="stories">
         <ul id="storyList" data-role="listview"></ul>
       </div>
@@ -53,37 +72,59 @@
     </div>
 
     <script>
-      var url = "https://newsapi.org/v2/top-headlines?country=us&apiKey=" + key;
-      var out = "";
-      var articles = [];
-      $.getJSON(url, function(data) {
-        console.log(data);
-        articles = data.articles;
-        for (var x = 0; x < articles.length; x++) {
-          displayStory(articles[x], x);
-          $("#storyList").html(out);
-          $("#storyList").listview("refresh");
-        }
-      });
-      function displayStory(story, storyindex) {
+      function getUSStories() {
+        var url =
+          "https://newsapi.org/v2/top-headlines?country=us&apiKey=" + key;
+        var out = "";
+        var articles = [];
+        $.getJSON(url, function(data) {
+          console.log(data);
+          articles = data.articles;
+          for (var x = 0; x < articles.length; x++) {
+            $li = displayStory(articles[x], x, out);
+            $("#storyList").append($li);
+            $li.on("click", populateDetails.bind(this, articles[x], x));
+            $("#storyList").listview("refresh");
+          }
+        });
+      }
+      function getIndiaStories() {
+        var url =
+          "https://newsapi.org/v2/top-headlines?country=in&apiKey=" + key;
+        var out = "";
+        var articles = [];
+        $.getJSON(url, function(data) {
+          console.log(data);
+          articles = data.articles;
+          for (var x = 0; x < articles.length; x++) {
+            $li = displayStory(articles[x], x, out);
+            $("#storyListIn").append($li);
+            $li.on("click", populateDetails.bind(this, articles[x], x));
+            $("#storyListIn").listview("refresh");
+          }
+        });
+      }
+      function displayStory(story, storyindex, out) {
         const index = storyindex;
         const title = story.title;
         const source = story.source.name;
         const image = story.urlToImage;
         const storyTime = story.publishedAt;
         const description = story.description;
-
-        out += "<li onclick='populateDetails(" + index + ")' class ='wrap'>";
+        out += "<li class ='wrap'>";
         out += "<a href='#detail'>";
         out += "<img src='" + image + "'/>";
         out += "<strong>" + title + "</strong>";
         out += "<br/>" + storyTime.substring(0, 10) + " by " + source;
         out += "<p class='wrap'" + description + "</p>";
         out += "</a></li>";
+        var $li = $(out);
+        return $li;
       }
 
-      function populateDetails(storyindex) {
-        const story = articles[storyindex];
+      function populateDetails(story, index) {
+        console.log(index);
+
         console.log(story);
         $("#detailTitle").html("<h1>" + story.title + "</h1>");
         $("#detailInfo").html(
