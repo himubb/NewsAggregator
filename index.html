@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css"
+    />
+    <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>News Aggregator</title>
+    <script src="index.js"></script>
+    <style>
+      #header,
+      #footer {
+        height: 30px;
+        width: 100%;
+        text-align: center;
+      }
+      #footer {
+        position: fixed;
+        bottom: 0px;
+      }
+      .wrap {
+        white-space: normal !important;
+      }
+
+      #detailImg img {
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div data-role="page" id="master">
+      <div data-role="header" id="header">News</div>
+      <div data-role="content"><h1>Top Headlines</h1></div>
+      <div id="stories">
+        <ul id="storyList" data-role="listview"></ul>
+      </div>
+      <div data-role="footer" id="footer">By Himu using NewsApi</div>
+    </div>
+
+    <div data-role="page" id="detail">
+      <div data-role="header" id="header">News</div>
+      <div data-role="content">
+        <div id="detailTitle"></div>
+        <div id="detailInfo"></div>
+        <div id="detailImg"></div>
+        <div id="detailStory"></div>
+        <div id="fullStoryLink"></div>
+        <a href="#master"><button>All Stories</button></a>
+      </div>
+      <div data-role="footer" id="footer">By Himu using NewsApi</div>
+    </div>
+
+    <script>
+      var url = "https://newsapi.org/v2/top-headlines?country=us&apiKey=" + key;
+      var out = "";
+      var articles = [];
+      $.getJSON(url, function(data) {
+        console.log(data);
+        articles = data.articles;
+        for (var x = 0; x < articles.length; x++) {
+          displayStory(articles[x], x);
+          $("#storyList").html(out);
+          $("#storyList").listview("refresh");
+        }
+      });
+      function displayStory(story, storyindex) {
+        const index = storyindex;
+        const title = story.title;
+        const source = story.source.name;
+        const image = story.urlToImage;
+        const storyTime = story.publishedAt;
+        const description = story.description;
+
+        out += "<li onclick='populateDetails(" + index + ")' class ='wrap'>";
+        out += "<a href='#detail'>";
+        out += "<img src='" + image + "'/>";
+        out += "<strong>" + title + "</strong>";
+        out += "<br/>" + storyTime.substring(0, 10) + " by " + source;
+        out += "<p class='wrap'" + description + "</p>";
+        out += "</a></li>";
+      }
+
+      function populateDetails(storyindex) {
+        const story = articles[storyindex];
+        console.log(story);
+        $("#detailTitle").html("<h1>" + story.title + "</h1>");
+        $("#detailInfo").html(
+          story.description +
+            " published on " +
+            story.publishedAt.substring(0, 10)
+        );
+        $("#detailImg").html("<img src='" + story.urlToImage + "'/>");
+        $("#detailStory").html("<p>" + story.content + "</p>");
+        $("#fullStoryLink").html("<a href='" + story.url + "'>Full Story</a>");
+      }
+    </script>
+  </body>
+</html>
